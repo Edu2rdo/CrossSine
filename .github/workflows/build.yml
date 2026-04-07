@@ -1,4 +1,4 @@
-name: build
+name: Build CrossSine
 
 on:
   workflow_dispatch:
@@ -9,24 +9,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Java setup
-        uses: actions/setup-java@v2
+          
+      - name: Setup Java JDK 8
+        uses: actions/setup-java@v4
         with:
-          distribution: "zulu"
-          java-version: 8
-          cache: "gradle"
-      - name: Set outputs
-        id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      - name: Build
-        run: chmod +x ./gradlew && ./gradlew setupCiWorkspace && ./gradlew build
-      - name: Rename build artifacts
-        run: mv build/libs/CrossSine-*.jar build/libs/CrossSine-Build.jar
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+          distribution: 'temurin'
+          java-version: '8'
+          
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew build --no-daemon
+          
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: CrossSine
-          path: build/libs/CrossSine-Build.jar
+          name: CrossSine-Build
+          path: build/libs/*.jar
